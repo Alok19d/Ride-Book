@@ -1,0 +1,203 @@
+/* Login and Signup Page Styles*/
+.auth-container{
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  position: relative;
+}
+
+.auth-container .logo-img{
+  position: absolute;
+  top: 30px;
+  left: 4%;
+  font-weight: bold;
+  font-size: 1.6rem;
+}
+
+.auth-content{
+  flex-basis: 40%;
+  margin: 0 auto;
+  /* padding-top: 25vh; */
+  display: flex;
+  align-items: center;
+}
+
+.form-container{
+  width: 80%;
+  max-width: 380px;
+  min-width: 250px;
+  margin: 0 auto;
+}
+
+.hero-text{
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.hero-subtext{
+  font-size: 1rem;
+  margin-bottom: 40px;
+} 
+
+.rememberme-checkbox,
+.terms-checkbox{
+  margin-right: 4px;
+  position: relative;
+  top: 1px;
+  accent-color: #000000;
+}
+
+.agree-terms a{
+  font-weight: 500;
+}
+
+.signup-text,
+.login-text{
+  display: block;
+  text-align: center;
+}
+
+.info-text{
+  font-size: 0.75rem;
+  font-weight: 450;
+}
+
+.auth-hero{
+  flex-basis: 60%;
+}
+
+.auth-hero img{
+  height: 100vh;
+  object-position: center;
+  object-fit: cover;
+}
+
+
+
+
+
+/* ValidateEmail Styles */
+.loading-text::after{
+  font-size: 2rem;
+  font-weight: 700;
+  content: "Loading";
+  animation: dots 1.5s infinite steps(1);
+}
+
+@keyframes dots {
+  0% { content: "Loading"; }
+  25% { content: "Loading."; }
+  50% { content: "Loading.."; }
+  75% { content: "Loading..."; }
+}
+
+
+
+
+
+/* Navbar Styles */
+.navbar{
+  padding: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo-img span{
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.nav-links{
+  flex-basis: 50%;
+  display: flex;
+  justify-content: space-around;
+}
+
+.icons{
+  display: flex;
+  align-items: center;
+}
+
+.icons a{
+  margin-inline: 6px;
+}
+
+
+
+
+
+/* Home Page Styles */
+.landing-container{
+  width: 100%;
+  min-height: 90vh;
+  display: flex;
+}
+
+.ride-details{
+  flex-basis: 40%;
+  display: flex;
+  justify-content: center;
+  padding-top: 50px;
+}
+
+.ride-form-container{
+  width: 80%;
+  min-width: 280px;
+  max-width: 350px;
+}
+
+.ride-type{
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid black;
+  border-radius: 3px;
+}
+
+.embedded-map{
+  flex-basis: 60%;
+  border: 1px solid black;
+}
+
+.landing-input input{
+  padding-left: 30px;
+}
+
+.landing-input svg{
+  position: absolute;
+  top:11px;
+  left:11px;
+}
+
+
+
+
+
+/* Media Queries */
+
+@media screen and (max-width: 800px) {
+  .form-container{
+    max-width: 80%;
+  }
+
+  .auth-content{
+    flex-basis: 100%;
+  }
+
+  .auth-hero{
+    display: none;
+  }
+
+  .landing-container{
+    flex-direction: column-reverse;
+  }
+
+  .embedded-map{
+    height: 900px;
+    width: 600px;
+  }
+}
