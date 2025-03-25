@@ -1,19 +1,17 @@
-import React from 'react'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMoon } from '@fortawesome/free-regular-svg-icons'
-import { faBell, faUser } from '@fortawesome/free-solid-svg-icons'
+import { faUser } from '@fortawesome/free-solid-svg-icons'
 
 const Navbar = () => {
   return (
-    <nav className='h-[65px]'>
+    <nav className=' shadow-md'>
       <div className='container navbar'>
         <div className='logo-img'>
           <Link to='/'>
             <span>RideApp</span>
           </Link>
         </div>
-        <div className='nav-links'>
+        <div className='nav-links hide-on-mobile'>
           <Link>Home</Link>
           <Link>Rides</Link>
           <Link>Wallets</Link>

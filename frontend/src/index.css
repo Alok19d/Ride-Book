@@ -98,8 +98,23 @@ input[type="color"]::-webkit-color-swatch-wrapper {
   font-weight: 450;
 }
 
+.view-on-mobile{
+  display: none;
+}
+
 @media screen and (max-width: 1200px) {
   .container{
-    margin-inline: 20px;
+    padding-inline: 25px !important;
+  }
+  
+}
+
+@media screen and (max-width: 800px) {
+  .hide-on-mobile{
+    display: none !important;
+  }
+
+  .view-on-mobile{
+    display: block;
   }
 }

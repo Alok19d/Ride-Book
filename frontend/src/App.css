@@ -130,47 +130,40 @@
 
 
 /* Home Page Styles */
+
 .landing-container{
-  width: 100%;
-  min-height: 90vh;
+  height: 100vh;
   display: flex;
+  padding-block: 30px;
 }
 
-.ride-details{
+.landing-inp{
+  position: relative;
+}
+
+.landing-inp input{
+  padding-left: 35px;
+}
+
+.landing-inp svg{
+  position: absolute;
+  top: 11px;
+  left: 11px;
+}
+
+.ride-info{
   flex-basis: 40%;
-  display: flex;
-  justify-content: center;
-  padding-top: 50px;
+  padding-top: 20px;
 }
 
 .ride-form-container{
-  width: 80%;
-  min-width: 280px;
-  max-width: 350px;
+  width: 75%;
+  min-width: 300px;
+  margin: 0 auto;
 }
 
-.ride-type{
-  padding: 10px 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 1px solid black;
-  border-radius: 3px;
-}
-
-.embedded-map{
+.google-map{
   flex-basis: 60%;
-  border: 1px solid black;
-}
-
-.landing-input input{
-  padding-left: 30px;
-}
-
-.landing-input svg{
-  position: absolute;
-  top:11px;
-  left:11px;
 }
 
 
@@ -193,11 +186,21 @@
   }
 
   .landing-container{
-    flex-direction: column-reverse;
+    padding-block: 20px;
+    flex-direction: column;
   }
 
-  .embedded-map{
-    height: 900px;
-    width: 600px;
+  .ride-info{
+    flex-basis: content;
   }
+
+  .ride-form-container{
+    width: 100%;
+  }
+
+  .google-map{
+    flex-grow: 1;
+  }
+
+
 }
