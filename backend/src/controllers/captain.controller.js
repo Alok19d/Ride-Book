@@ -7,14 +7,14 @@ import { createCaptain, forgotPasswordEmail, sendVerificationEmail, generateAcce
 async function registerCaptain(req,res){
   try{
     const captainSchema = z.object({
-      fullname: z.string().min(3, "Full name is required"),
-      email: z.string().email("Invalid email format").optional(),
-      password: z.string().min(6, "Password must be at least 6 characters long"),
-      vehicleColor: z.string().min(3, 'Vehicle Color must be atleast 3 characters long'),
-      vehicleCapacity: z.number().min(1,'Vehicle Capacity must be atleast 1'),
+      fullname: z.string().min(3, {message: "Full name is required"}),
+      email: z.string().email({message: "Invalid email format"}).optional(),
+      password: z.string().min(6, {message: "Password must be at least 6 characters long"}),
+      vehicleColor: z.string().min(3, {message: 'Vehicle Color must be atleast 3 characters long'}),
+      vehicleCapacity: z.number().min(1,{message: 'Vehicle Capacity must be atleast 1'}),
       vehicleType: z.enum(['car', 'motorcycle', 'auto']),
       vehicleModel: z.string().optional(),
-      vehiclePlate: z.string().min(4,'Vehicle Plate must be atleast 4 characters long'),
+      vehiclePlate: z.string().min(4,{message: 'Vehicle Plate must be atleast 4 characters long'}),
     });
 
     const {fullname, email, phone, otp, password, vehicleColor, vehicleCapacity, vehicleType, vehicleModel, vehiclePlate} = req.body;
@@ -185,9 +185,9 @@ async function verifyEmailAndLogin(req,res){
 async function loginCaptain(req,res){
   try{
     const captainSchema = z.object({
-      email: z.string().email("Invalid email format").optional(),
-      phone: z.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits").optional(),
-      password: z.string().min(6, "Password must be at least 6 characters long"),
+      email: z.string().email({message: "Invalid email format"}).optional(),
+      phone: z.string().regex(/^\d{10}$/, {message: "Phone number must be exactly 10 digits"}).optional(),
+      password: z.string().min(6, {message: "Password must be at least 6 characters long"}),
     }).refine((data) => data.email || data.phone, {
       message: "Either email or phone must be provided",
       path: ["email", "phone"],
@@ -316,8 +316,8 @@ async function updateCaptainProfile(req,res){
 async function forgotPassword(req,res){
   try{
     const captainSchema = z.object({
-      email: z.string().email("Invalid email format").optional(),
-      phone: z.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits").optional(),
+      email: z.string().email({message: "Invalid email format"}).optional(),
+      phone: z.string().regex(/^\d{10}$/, {message: "Phone number must be exactly 10 digits"}).optional(),
     }).refine((data) => data.email || data.phone, {
       message: "Either email or phone must be provided",
       path: ["email", "phone"],
@@ -390,7 +390,7 @@ async function forgotPassword(req,res){
 async function resetPassword(req,res){
   try{
     const passwordSchema = z.object({
-      password: z.string().min(6, "Password must be at least 6 characters long"),
+      password: z.string().min(6, {message: "Password must be at least 6 characters long"}),
     });
 
     const {token} = req.query;

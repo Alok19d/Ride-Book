@@ -7,9 +7,9 @@ import { createUser, forgotPasswordEmail, sendVerificationEmail, generateAccessA
 async function registerUser(req,res){
   try{
     const userSchema = z.object({
-      fullname: z.string().min(3, "Full name is required"),
-      email: z.string().email("Invalid email format"),
-      password: z.string().min(6, "Password must be at least 6 characters long"),
+      fullname: z.string().min(3, {message: "Full name is required"}),
+      email: z.string().email({message: "Invalid email format"}),
+      password: z.string().min(6, {message: "Password must be at least 6 characters long"}),
     });
     
     const {fullname, email, password} = req.body;
@@ -164,9 +164,9 @@ async function verifyEmailAndLogin(req,res){
 async function loginUser(req,res){
   try{
     const userSchema = z.object({
-      email: z.string().email("Invalid email format").optional(),
-      phone: z.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits").optional(),
-      password: z.string().min(6, "Password must be at least 6 characters long"),
+      email: z.string().email({message: "Invalid email format"}).optional(),
+      phone: z.string().regex(/^\d{10}$/, {message: "Phone number must be exactly 10 digits"}).optional(),
+      password: z.string().min(6, {message: "Password must be at least 6 characters long"}),
     }).refine((data) => data.email || data.phone, {
       message: "Either email or phone must be provided",
       path: ["email", "phone"],
@@ -295,8 +295,8 @@ async function updateUserProfile(req,res){
 async function forgotPassword(req,res){
   try{
     const userSchema = z.object({
-      email: z.string().email("Invalid email format").optional(),
-      phone: z.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits").optional(),
+      email: z.string().email({message: "Invalid email format"}).optional(),
+      phone: z.string().regex(/^\d{10}$/, {message: "Phone number must be exactly 10 digits"}).optional(),
     }).refine((data) => data.email || data.phone, {
       message: "Either email or phone must be provided",
       path: ["email", "phone"],
@@ -369,7 +369,7 @@ async function forgotPassword(req,res){
 async function resetPassword(req,res){
   try{
     const passwordSchema = z.object({
-      password: z.string().min(6, "Password must be at least 6 characters long"),
+      password: z.string().min(6, {message: "Password must be at least 6 characters long"}),
     });
 
     const {token} = req.query;

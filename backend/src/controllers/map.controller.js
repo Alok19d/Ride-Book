@@ -2,11 +2,11 @@ import { z } from 'zod';
 import { getAddressCoordinates, getDistanceAndTime, getInputSuggestions } from '../services/map.service.js'
 
 async function getCoordinates(req,res) {
-  const addressSchema = z.object({
-    address: z.string().min(3, "Address ,ust be atleast 3 characters long")
-  });
-  
   try {
+    const addressSchema = z.object({
+      address: z.string().min(3, "Address must be atleast 3 characters long")
+    });
+  
     const { address } = req.query;
     
     /* Input Validation */
@@ -17,7 +17,7 @@ async function getCoordinates(req,res) {
     /* Getting Coordinates */
     const coordinates = await getAddressCoordinates(address);
 
-    return res
+    res
     .status(200)
     .json({
       statusCode: 200,
@@ -25,20 +25,40 @@ async function getCoordinates(req,res) {
       data: {
         coordinates
       },
-      message: "User registered successfully. Please verify your email",
+      message: "Coordinates Fetched Successfully",
     });
   } catch (error) {
-    
+    console.log(error);
+    if(error instanceof z.ZodError){
+      res
+      .status(400)
+      .json({
+        statusCode: 400,
+        success: false,
+        message: "Validation Error",
+        error: error
+      });
+      return;
+    }
+
+    res
+    .status(500)
+    .json({
+      statusCode: 500,
+      success: false,
+      message: "Something went wrong while fetching coordinates",
+      error: error
+    });
   }
 }
 
 async function getDistanceTime(req,res) {
-  const pathSchema = z.object({
-    pickup: z.string().min(3, "Address must be atleast 3 characters long"),
-    destination: z.string().min(3, "Address ,ust be atleast 3 characters long"),
-  });
-
   try{
+    const pathSchema = z.object({
+      pickup: z.string().min(3, "Pickup must be atleast 3 characters long"),
+      destination: z.string().min(3, "Destination must be atleast 3 characters long"),
+    });
+
     const { pickup, destination } = req.query;
 
     /* Input Validation */
@@ -49,33 +69,48 @@ async function getDistanceTime(req,res) {
 
     const distanceTime = await getDistanceAndTime(pickup, destination);
 
-    return res
+    res
     .status(200)
     .json({
       statusCode: 200,
       success: true,
       data: {
-        d:''
+        distance: distanceTime.distance,
+        duration: distanceTime.duration
       },
-      message: "Distance and Time between given pickup and destination fetched successfully",
+      message: "Data fetched successfully",
     });
   }catch(error){
-    return res
+    console.log(error);
+    if(error instanceof z.ZodError){
+      res
+      .status(400)
+      .json({
+        statusCode: 400,
+        success: false,
+        message: "Validation Error",
+        error: error
+      });
+      return;
+    }
+
+    res
     .status(500)
     .json({
       statusCode: 500,
       success: false,
       message: "Couldn't find Distance and Time between given points",
+      error: error
     });
   }
 }
 
 async function getSuggestions(req,res) {
-  const inputSchema = z.object({
-    input: z.string().min(3,'Input must be atleast 3 characters long')
-  });
-
   try{
+    const inputSchema = z.object({
+      input: z.string().min(3,'Input must be atleast 3 characters long')
+    });
+
     const { input } = req.query;
 
     /* Input Validation */
@@ -85,7 +120,7 @@ async function getSuggestions(req,res) {
 
     const suggestions = await getInputSuggestions(input);
 
-    return res
+    res
     .status(200)
     .json({
       statusCode: 200,
@@ -95,18 +130,30 @@ async function getSuggestions(req,res) {
       },
       message: "Suggestions fetched successfully",
     });
-  } catch (err){
-    return res
+  } catch (error){
+    console.log(error);
+    if(error instanceof z.ZodError){
+      res
+      .status(400)
+      .json({
+        statusCode: 400,
+        success: false,
+        message: "Validation Error",
+        error: error
+      });
+      return;
+    }
+
+    res
     .status(500)
     .json({
       statusCode: 500,
       success: false,
       message: "No Suggestions Found",
+      error: error
     });
   }
 }
-
-
 
 export { 
   getCoordinates, 

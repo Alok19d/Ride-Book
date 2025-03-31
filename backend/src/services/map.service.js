@@ -1,11 +1,13 @@
 import axios from 'axios';
+import Captain from '../models/captain.model';
 
 async function getAddressCoordinates(address){
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
-
   try {
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+    
     const response = await axios.get(url);
+
     if(response.data.status === 'OK'){
       const location = response.data.results[0].geometry.location;
 
@@ -31,7 +33,7 @@ async function getDistanceAndTime(pickup, destination){
   const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(pickup)}&destinations=${encodeURIComponent(destination)}&key=${apiKey}`;
 
   try {
-    const response = axios.get(url);
+    const response = await axios.get(url);
     if(response.data.status === 'OK'){
       const data = response.data.rows[0].elements[0];
 
@@ -99,7 +101,7 @@ async function getCaptainsInRadius(ltd,lng,radius){
   }
 
   try{
-    const captains = await captainModel.find({
+    const captains = await Captain.find({
       location: {
         $geoWithin: {
           $centerSphere: [[ltd, lng], radius / 6371]
@@ -116,5 +118,6 @@ async function getCaptainsInRadius(ltd,lng,radius){
 export {
   getAddressCoordinates,
   getDistanceAndTime,
-  getInputSuggestions
+  getInputSuggestions,
+  getCaptainsInRadius
 }

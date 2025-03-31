@@ -1,18 +1,18 @@
 import { Router } from "express";
 import { authUser, authCaptain } from '../middlewares/auth.middlewares.js'
-import { createRide } from '../controllers/ride.controller.js'
+import { getFare, createRide, acceptRide, startRide, endRide } from '../controllers/ride.controller.js'
 
 const router = Router();
 
-router.get('/get-fare', authUser, createRide);
+router.get('/get-fare', authUser, getFare);
 
 router.post('/create', authUser, createRide);
 
-router.post('/confirm', authCaptain, createRide);
+router.post('/accept-ride', authCaptain, acceptRide);
 
-router.get('/start-ride', authCaptain, createRide);
+router.get('/start-ride', authCaptain, startRide);
 
-router.post('/finish-ride', authCaptain, createRide);
+router.post('/end-ride', authCaptain, endRide);
 
 
 export default router;

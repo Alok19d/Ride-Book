@@ -1,13 +1,19 @@
 import { useState } from 'react'
-import {APIProvider, Map, AdvancedMarker} from '@vis.gl/react-google-maps'
+import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps'
 import Navbar from '../components/Navbar'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircle, faLocationDot } from '@fortawesome/free-solid-svg-icons'
 
 
 const Home = () => {
+
+  const center = {lat: 28.6139, lng: 77.2088};
   const [pickup, setPickup] = useState('');
-  const [destination, setSestination] = useState('');
+  const [destination, setDestination] = useState('');
+
+  function requestRideHandler(){
+
+  }
 
   return (
     <>
@@ -23,7 +29,9 @@ const Home = () => {
                       Pickup
                     </label>
                     <input 
-                      type='text' 
+                      type='text'
+                      value={pickup}
+                      onChange={(e) => {setPickup(e.target.value)}} 
                       placeholder='Pickup Location'
                       required
                     />
@@ -35,6 +43,8 @@ const Home = () => {
                     </label>
                     <input 
                       type='text' 
+                      value={destination}
+                      onChange={(e) => {setDestination(e.target.value)}} 
                       placeholder='Destination Location'
                       required
                     />
@@ -91,15 +101,22 @@ const Home = () => {
             <div className='google-map border'>
               <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
                 <Map 
-                  zoom={12} 
-                  center={{lat: 28.6139, lng: 77.2088}}
+                  defaultZoom={12} 
+                  defaultCenter={center}
                   style={{ 
                     width: '100%', 
                     height: '100%',
                   }}
-                  gestureHandling={'greedy'}
+                  options={{
+                    zoomControl: false,
+                    streetViewControl: false,
+                    mapTypeControl: false,
+                    fullscreenControl: false,
+                    cameraControl: false,
+                  }}
+                  // gestureHandling={'greedy'}
                 >
-                {/* <AdvancedMarker position={{lat: 29.5, lng: -81.2}} /> */}
+                <Marker position={center} />
                 </Map>
               </APIProvider>
             </div>
@@ -128,7 +145,12 @@ const Home = () => {
                   <p>Car</p>
                 </div>
               </div>
-              <button className='btn-1'>Request Ride</button>
+              <button 
+                className='btn-1'
+                onClick={requestRideHandler}
+              >
+                Request Ride
+              </button>
             </div>
           </div>
         </section>
