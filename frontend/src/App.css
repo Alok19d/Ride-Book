@@ -145,7 +145,7 @@
   padding-left: 35px;
 }
 
-.landing-inp svg{
+.landing-inp>svg{
   position: absolute;
   top: 11px;
   left: 11px;
@@ -156,7 +156,6 @@
   padding-top: 20px;
 }
 
-
 .new-ride-container,
 .ride-form-container{
   width: 75%;
@@ -166,6 +165,30 @@
 
 .google-map{
   flex-basis: 60%;
+}
+
+.suggestions{
+  width: 100%;
+  background-color: #fff;
+  padding: 10px;
+  margin-top: 5px;
+  position: absolute;
+  top: 100%;
+  z-index: 100;
+  border: 1px solid black;
+  border-radius: 4px;
+}
+
+.suggestions p{
+  padding-block: 2px;
+}
+
+.suggestions p:not(:last-child){
+  border-bottom: 1px solid black;
+}
+
+.suggestions p:hover{
+  background-color: #00000020;
 }
 
 
