@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Captain from '../models/captain.model';
+import Captain from '../models/captain.model.js';
 
 async function getAddressCoordinates(address){
   try {
@@ -20,6 +20,33 @@ async function getAddressCoordinates(address){
       throw new Error('Something went wrong while fetching coordinates');
     }
   } catch (err) {
+    throw err;
+  }
+}
+
+async function reverseGeocoding(input){
+  if(!input){
+    throw new Error('String containing the latitude/longitude is required');
+  }
+
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${input}&key=${apiKey}`;
+
+  try {
+    const response = await axios.get(url);
+    if(response.data.status === 'OK'){
+      const data = response.data;
+
+      if(data.status === 'ZERO_RESULTS'){
+        throw new Error('No Route Found');
+      }
+
+      return data.plus_code.compound_code;
+    }
+    else{
+      throw new Error('Something went wrong while fetching address');
+    }
+  } catch(err){
     throw err;
   }
 }
@@ -115,9 +142,11 @@ async function getCaptainsInRadius(ltd,lng,radius){
   }
 }
 
+
 export {
   getAddressCoordinates,
   getDistanceAndTime,
   getInputSuggestions,
-  getCaptainsInRadius
+  getCaptainsInRadius,
+  reverseGeocoding
 }

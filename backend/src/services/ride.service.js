@@ -18,19 +18,19 @@ async function getFareService(pickup, destination){
   const baseFare = {
     auto: 25,
     motorcycle: 20,
-    car: 45,
+    car: 50,
   };
 
   const perKmRate = {
-    auto: 7,
-    motorcycle: 5,
-    car: 12,
+    auto: 4,
+    motorcycle: 2.5,
+    car: 10,
   };
 
   const perMinRate = {
-    auto: 4,
-    motorcycle: 2,
-    car: 5,
+    auto: 2.5,
+    motorcycle: 2.1,
+    car: 4.3,
   };
 
   const fare = {
@@ -38,7 +38,11 @@ async function getFareService(pickup, destination){
     auto: Math.round(baseFare.auto + ((distanceTime.distance.value / 1000) * perKmRate.auto) + ((distanceTime.duration.value / 60) * perMinRate.auto)),
     motorcycle: Math.round(baseFare.motorcycle + ((distanceTime.distance.value / 1000) * perKmRate.motorcycle) + ((distanceTime.duration.value / 60) * perMinRate.motorcycle))
   }
-  return fare;
+  return {
+    ...fare, 
+    distance: distanceTime.distance.text,
+    duration: distanceTime.duration.text
+  };
 }
 
 async function createRideService({user, pickup, destination, vehicleType}){

@@ -8,6 +8,7 @@ import ResetPassword from './pages/ResetPassword'
 import ValidateEmail from './pages/ValidateEmail'
 import ProtectedRoute from './components/ProtectedRoute'
 import Home from './pages/Home'
+import Ride from './pages/Ride'
 import Profile from './pages/Profile'
 import CaptainLogin from './pages/CaptainLogin'
 import CaptainSignup from './pages/CaptainSignup'
@@ -31,6 +32,7 @@ const App = () => {
       <Route element={<ProtectedRoute />}>
         <Route path='/' element={<Home />}/>
         <Route path='/profile' element={<Profile />}/>
+        <Route path='/ride' element={<Ride />}/>
       </Route>
 
       <Route path='/captain-login' element={<CaptainLogin />}/>

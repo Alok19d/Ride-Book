@@ -6,7 +6,7 @@ import BlacklistToken from '../models/blacklistToken.model.js';
 async function authUser(req,res,next){
   try{
     const token = req.cookies?.accessToken || req.header('Authorization')?.replace('Bearer ', '');
-    
+
     if(!token){
       res
       .status(401)

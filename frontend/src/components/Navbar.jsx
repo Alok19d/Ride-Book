@@ -1,6 +1,4 @@
 import { Link } from 'react-router-dom'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUser } from '@fortawesome/free-solid-svg-icons'
 
 const Navbar = () => {
   return (
@@ -20,10 +18,7 @@ const Navbar = () => {
         </div>
         <div className='icons'>
           <Link>
-            Notifications
-          </Link>
-          <Link>
-            <FontAwesomeIcon className='border-2 rounded-full p-1' icon={faUser} />
+            <img className='w-[30px]' src='https://sudoku-master.vercel.app/Avatar_01.png'/>
           </Link>
         </div>
       </div>

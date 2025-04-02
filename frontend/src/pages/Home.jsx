@@ -4,9 +4,12 @@ import { useSelector } from 'react-redux'
 import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircle, faLocationDot, faCrosshairs, faLocationCrosshairs } from '@fortawesome/free-solid-svg-icons'
-import Navbar from '../components/Navbar'
 import { debounce } from "lodash";
 import socket from '../config/socket'
+
+import Navbar from '../components/Navbar'
+import Directions from '../components/Directions'
+
 
 const Home = () => {
   
@@ -18,42 +21,34 @@ const Home = () => {
     destination: '',
     vehicleType: '',
   })
+  const [error, setError] = useState('');
   
   const [pickupSuggestions, setPickupSuggestions] = useState([]);
   const [destinationSuggestions, setDestinationSuggestions] = useState([]);
   
-  const [center, setCenter] = useState({lat: 28.6139, lng: 77.2088});
-
-  const [fare, setFare] = useState(null);
-  const [route, setRoute] = useState(null);
+  const center = {lat: 28.6139, lng: 77.2088};
+  const [journeyDetails, setJourneyDetails] = useState(null);
 
   const { profile } = useSelector(state => state.user);
+
 
   /* Join to WebSocket when Component Re renders */
   useEffect(() => {
     socket.emit("join", {userType: "user", userId: profile._id});
   }, []);
   
-  const fetchRideDetails = debounce(async(pickup, destination, setFare) => {
+  /* Fetch Ride Fare, Distance and Duration */
+  const fetchRideFare = debounce(async(pickup, destination, setJourneyDetails) => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/v1/ride/get-fare`,{
         params: { 
           pickup, destination 
         },
         withCredentials: true 
-      });
-      
-      const directions = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/v1/map/get-direction`,{
-        params: { pickup, destination },
-        withCredentials: true 
-      });
-
-      console.log(directions.data.data.route.routes[0].overview_polyline.points);
-
-      setRoute(directions.data.data.route.routes[0].overview_polyline.points);
+      });   
 
       if(response.status === 200){
-        setFare(response.data.data.fare);
+        setJourneyDetails(response.data.data);
       }
     } catch (error) {
       console.log(error);
@@ -64,15 +59,15 @@ const Home = () => {
   /* Fetch fare if both Pickup and Destination is provided */
   useEffect(() => {
     if(rideData.pickup.length >= 3 && rideData.destination.length >= 3){
-      fetchRideDetails(rideData.pickup, rideData.destination, setFare);
+      fetchRideFare(rideData.pickup, rideData.destination, setJourneyDetails);
     }
 
     return () => {
-      fetchRideDetails.cancel();
+      fetchRideFare.cancel();
     }
   }, [rideData]);
 
-  /* Fetch Suggestions  */
+  /* Fetch Suggestions for Pickup/ Destination */
   async function fetchSuggestions(input, type){
     if (!input || input.length < 3) return;
     
@@ -93,19 +88,20 @@ const Home = () => {
   }
 
   const handleSearch = debounce((input, type) => {
-      fetchSuggestions(input, type);
-    }, 300);
+    fetchSuggestions(input, type);
+  }, 300);
 
-
+  /* Handle Pickup Searches */
   function handlePickupSearch(){
     handleSearch(pickupRef.current.value, 'pickup');
   }
   
+  /* Handle Destination Searches */
   function handleDestinationSearch(){
     handleSearch(destinationRef.current.value, 'destination');
   }
 
-  /* Handle change in rideData values */
+  /* Handle change in rideData pickup values */
   function handlePickupChange(e){
     setRideData(prev => ({
       ...prev,
@@ -131,7 +127,7 @@ const Home = () => {
     }));
   };
 
-  /* Get user Location */
+  /* Fetches User current location and set it to Pickup Location */
   async function handleCurrentLocation(){
     if (!navigator.geolocation) {
       alert('Geolocation is not supported by your browser');
@@ -143,11 +139,6 @@ const Home = () => {
         const { latitude, longitude } = position.coords;
         const location = `${latitude}, ${longitude}`;
 
-        setCenter({
-          lat: latitude,
-          lng: longitude
-        });
-        
         axios.get(`${import.meta.env.VITE_BASE_URL}/api/v1/map/reverse-geocode`,{
           params: { 
             input: location
@@ -172,9 +163,27 @@ const Home = () => {
   function requestRideHandler(e){
     e.preventDefault();
 
+    const pickup = rideData.pickup.split(' ').join('');
+    const destination = rideData.destination.split(' ').join('');
+
+    if(pickup.length < 3){
+      setError('Please select a valid Pickup Location');
+      return;
+    }
+
+    if(destination.length < 3){
+      setError('Please select a valid Destination Location');
+      return;
+    }
+
+    if(!rideData.vehicleType){
+      setError('Please choose a Vehicle Type');
+      return;
+    }
+
     console.log(rideData);
 
-    // socket.emit('requestRide', rideRequest);
+    
   }
 
   return (
@@ -283,7 +292,7 @@ const Home = () => {
                           <p>4 min away</p>
                         </div>
                       </div>
-                      <p className='font-semibold'>₹ {fare ? fare.auto : '-- --' }</p>
+                      <p className='font-semibold'>₹ {journeyDetails ? journeyDetails.fare.auto : '-- --' }</p>
                     </div>
                     <div 
                       className={`flex justify-between items-center px-4 py-2 border rounded cursor-pointer ${rideData.vehicleType === 'motorcycle' ? 'outline outline-black' : ''}`}
@@ -299,7 +308,7 @@ const Home = () => {
                           <p>4 min away</p>
                         </div>
                       </div>
-                      <p className='font-semibold'>₹ {fare ? fare.motorcycle : '-- --'}</p>
+                      <p className='font-semibold'>₹ {journeyDetails ? journeyDetails.fare.motorcycle : '-- --'}</p>
                     </div>
                     <div 
                       className={`flex justify-between items-center px-4 py-2 border rounded cursor-pointer ${rideData.vehicleType === 'car' ? 'outline outline-black' : ''}`}
@@ -315,8 +324,11 @@ const Home = () => {
                           <p>4 min away</p>
                         </div>
                       </div>
-                      <p className='font-semibold'>₹ {fare ? fare.car: '-- --'}</p>
+                      <p className='font-semibold'>₹ {journeyDetails ? journeyDetails.fare.car: '-- --'}</p>
                     </div>
+                    <p className='text-red-600 pl-1 mb-0 text-sm'>
+                      {error}
+                    </p>
                     <button 
                       className='btn-1'
                       onClick={requestRideHandler}
@@ -327,10 +339,10 @@ const Home = () => {
                 </form>
               </div>
             </div>
-            <div className='google-map border'>
+            <div className='relative google-map border'>
               <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
                 <Map 
-                  mapId={import.meta.env.VITE_MAP_ID}
+                  mapId='2f77cdffe04d575f'
                   defaultZoom={12} 
                   defaultCenter={center}
                   style={{ 
@@ -344,13 +356,31 @@ const Home = () => {
                     fullscreenControl: false,
                     cameraControl: false,
                   }}
-                  // gestureHandling={'greedy'}
+                  gestureHandling='cooperative'
                 >
-                  <AdvancedMarker position={center}>
-                    <img src='/pin.png' width={32} height={32}/>
-                  </AdvancedMarker>
+                  {
+                    !(rideData.pickup || rideData.destination) &&
+                    <AdvancedMarker position={center}>
+                      <img src='/pin.png' width={32} height={32}/>
+                    </AdvancedMarker>
+                  }
+                  {
+                    rideData.pickup && rideData.destination && (
+                      <Directions 
+                        pickup={rideData.pickup} 
+                        destination={rideData.destination}
+                      />
+                    )
+                  }
                 </Map>
               </APIProvider>
+              {
+                journeyDetails &&
+                <div className='bg-white absolute bottom-2 lg:bottom-8 left-4 px-2 py-1 border rounded'>
+                  <p><span className='font-semibold'>Distance: {journeyDetails?.distance}</span> </p>
+                  <p><span className='font-semibold'>Duration: {journeyDetails?.duration}</span> </p>
+                </div>
+              }
             </div>
             <div className='view-on-mobile mt-5'>
               <h2 className='text-lg font-semibold mb-1'>Choose Ride Type</h2>

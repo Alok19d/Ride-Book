@@ -20,7 +20,7 @@ async function getFare(req,res){
       destination
     });
   
-    const fare = await getFareService(pickup, destination);
+    const data = await getFareService(pickup, destination);
     
     res
     .status(200)
@@ -28,7 +28,13 @@ async function getFare(req,res){
       statusCode: 200,
       success: true,
       data: {
-        fare
+        fare : {
+          auto: data.auto,
+          car: data.car,
+          motorcycle: data.motorcycle
+        },
+        distance: data.distance,
+        duration: data.duration 
       },
       message: "Fare fetched successfully"
     });

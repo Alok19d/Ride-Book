@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getAddressCoordinates, getDistanceAndTime, getInputSuggestions } from '../services/map.service.js'
+import { getAddressCoordinates, getDistanceAndTime, getInputSuggestions, reverseGeocoding } from '../services/map.service.js'
 
 async function getCoordinates(req,res) {
   try {
@@ -62,7 +62,7 @@ async function getDistanceTime(req,res) {
     const { pickup, destination } = req.query;
 
     /* Input Validation */
-    const validateAddress = pathSchema.parse({
+    const validateInput = pathSchema.parse({
       pickup,
       destination
     });
@@ -155,8 +155,60 @@ async function getSuggestions(req,res) {
   }
 }
 
+async function reverseGeocode(req,res) {
+  try{
+    const inputSchema = z.object({
+      input: z.string().min(3, "Input must be atleast 5 characters long"),
+    });
+
+    const { input } = req.query;
+
+    /* Input Validation */
+    const validateInput= inputSchema.parse({
+      input
+    });
+
+    const address = await reverseGeocoding(input);
+
+    res
+    .status(200)
+    .json({
+      statusCode: 200,
+      success: true,
+      data: {
+        address
+      },
+      message: "Data fetched successfully",
+    });
+  }catch(error){
+    console.log(error);
+    if(error instanceof z.ZodError){
+      res
+      .status(400)
+      .json({
+        statusCode: 400,
+        success: false,
+        message: "Validation Error",
+        error: error
+      });
+      return;
+    }
+
+    res
+    .status(500)
+    .json({
+      statusCode: 500,
+      success: false,
+      message: "Couldn't find reverse Geocode of given points",
+      error: error
+    });
+  }
+}
+
+
 export { 
   getCoordinates, 
   getDistanceTime, 
-  getSuggestions 
+  getSuggestions,
+  reverseGeocode
 }
