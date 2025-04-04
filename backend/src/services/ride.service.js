@@ -45,18 +45,19 @@ async function getFareService(pickup, destination){
   };
 }
 
-async function createRideService({user, pickup, destination, vehicleType}){
-  if(!user || !pickup || !destination || !vehicleType){
-    throw new Error('User, Pickup, Destination, VehicleType fields are required.')
+async function createRideService({user, pickup, destination, vehicleType, paymentMode}){
+  if(!user || !pickup || !destination || !vehicleType || !paymentMode){
+    throw new Error('User, Pickup, Destination, VehicleType and paymentMode fields are required.')
   }
 
-  const fare = await getFare(pickup, destination);
+  const fare = await getFareService(pickup, destination);
 
   const ride = Ride.create({
     user,
     pickup,
     destination,
     vehicleType,
+    paymentMode,
     otp: getOTP(4),
     fare: fare[vehicleType]
   });

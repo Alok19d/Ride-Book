@@ -68,32 +68,33 @@ async function createRide(req,res){
     const rideSchema = z.object({
       pickup: z.string().min(3, {message: "Pickup must be atleast 3 characters long"}),
       destination: z.string().min(3, {message: "Pickup must be atleast 3 characters long"}),
-      vehicleType: z.string().min(3, {message: "vehicleType must be atleast 3 characters long"}),
+      vehicleType: z.enum(['car', 'auto', 'motorcycle']),
+      paymentMode: z.enum(['cash', 'upi', 'debit-card'])
     });
       
-    const {pickup, destination, vehicleType} = req.body;
+    const {pickup, destination, vehicleType, paymentMode} = req.body;
 
     /* Input Validation */
     const validateRide = rideSchema.parse({
       pickup,
       destination,
-      vehicleType
+      vehicleType,
+      paymentMode
     });
 
     const ride = await createRideService({
       user: req.user._id,
       pickup,
       destination,
-      vehicleType
+      vehicleType,
+      paymentMode
     });
     
     const pickupCoordinates = await getAddressCoordinates(pickup);
 
     const captiansInRadius = await getCaptainsInRadius(pickupCoordinates.ltd, pickupCoordinates.lng, 100);
 
-    ride.otp =""
-
-    const rideWithUser = await Ride.findOne({_id: ride._id}).populate('user')
+    const rideWithUser = await Ride.findOne({_id: ride._id}).populate('user');
 
     captiansInRadius.map(async (captain) => {
       sendMessageToSocketId(captain.socketId, {
@@ -141,7 +142,7 @@ async function createRide(req,res){
 async function acceptRide(req, res){
   try {
     const inputSchema = z.object({
-      rideId: z.instanceof(Schema.Types.ObjectId)
+      rideId: z.string().min(3, {message: 'rideId must be atleast 3 characters long'})
     });
 
     const {rideId} = req.body; 
@@ -156,7 +157,7 @@ async function acceptRide(req, res){
       captain: req.captain
     });
 
-    sendMessageToSocketId({
+    sendMessageToSocketId(ride.user.socketId,{
       event: 'ride-accepted',
       data: ride
     });
@@ -199,7 +200,7 @@ async function acceptRide(req, res){
 async function startRide(req, res){
   try {
     const inputSchema = z.object({
-      rideId: z.instanceof(Schema.Types.ObjectId),
+      rideId: z.string().min(3, {message: 'rideId must be atleast 3 characters long'}),
       otp: z.string().length(4, {message: "OTP must be exactly 4 characters long"})
     });
 
@@ -260,7 +261,7 @@ async function startRide(req, res){
 async function endRide(req, res){
   try {
     const inputSchema = z.object({
-      rideId: z.instanceof(Schema.Types.ObjectId)
+      rideId: z.string().min(3, {message: 'rideId must be atleast 3 characters long'})
     });
 
     const {rideId} = req.body; 

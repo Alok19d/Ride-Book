@@ -7,7 +7,7 @@ const initialState = {
 }
 
 const captainSlice = createSlice({
-  name: 'user',
+  name: 'captain',
   initialState,
   reducers: {
     setCaptainError: (state, action) => {

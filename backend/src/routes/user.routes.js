@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authUser } from '../middlewares/auth.middlewares.js'
-import { registerUser, verifyEmailAndLogin, loginUser, getUserProfile, updateUserProfile, forgotPassword, resetPassword, changePassword, logoutUser } from '../controllers/user.controller.js'
+import { registerUser, verifyEmailAndLogin, loginUser, getUserProfile, refreshAccessToken, updateUserProfile, forgotPassword, resetPassword, changePassword, logoutUser } from '../controllers/user.controller.js'
 
 const router = Router();
 
@@ -11,6 +11,8 @@ router.get('/verify-email', verifyEmailAndLogin);
 router.post('/login', loginUser);
 
 router.get('/profile', authUser, getUserProfile)
+
+router.get('/refresh-token', refreshAccessToken)
 
 // Not Completed
 router.patch('/update-profile', authUser, updateUserProfile) 

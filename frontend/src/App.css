@@ -129,9 +129,10 @@
 
 
 
-/* Home Page Styles */
+/* Home and Ride Page Styles */
 
-.landing-container{
+.landing-container,
+.ride-container{
   height: 100vh;
   display: flex;
   padding-block: 30px;
@@ -190,6 +191,28 @@
 .suggestions p:hover{
   background-color: #00000020;
 }
+
+/* Ride Page Styles */
+.search-icon{
+  content: '';
+  padding: 15px;
+  background-color: #1447e645;
+  border-radius: 100%;
+  animation: anim 1.5s linear 0s infinite alternate;
+}
+
+@keyframes anim {
+  from {
+    /* styles */
+    background-color: #1447e620;
+  }
+  to {
+    background-color: #1447e660;
+    /* styles */
+  }
+}
+
+
 
 
 

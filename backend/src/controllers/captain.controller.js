@@ -309,6 +309,83 @@ async function getCaptainProfile(req,res){
   });
 }
 
+async function refreshAccessToken(req,res) {
+  const token = req.cookies?.refreshToken || req.header('Authorization')?.replace('Bearer ', '');
+
+  if(!token){
+    res
+    .status(401)
+    .json({
+      statusCode: 401,
+      success: false,
+      message: "Unauthorized Request",
+    });
+    return;
+  }
+
+  try{
+    const decodedToken = jwt.verify(token, process.env.CAPTAIN_REFRESH_TOKEN_SECRET);
+
+    const captain = await  Captain.findById(decodedToken?._id);
+
+    if(!captain || captain.refreshToken !== token){
+      res
+      .status(401)
+      .json({
+        statusCode: 401,
+        success: false,
+        message: "Invalid Refresh Token",
+      });
+      return;
+    }
+
+    const loggedCaptain = await Captain.findOne(captain._id).select('-password -refreshToken')
+
+    if(!loggedCaptain){
+      res
+      .status(500)
+      .json({
+        statusCode: 500,
+        success: false,
+        message: "Something went wrong while logging Captain",
+      });
+      return;
+    }
+
+    /* Generating Access and Refresh Token */
+    const {accessToken, refreshToken} = await generateAccessAndRefreshToken(captain._id);
+
+    const options = {
+      httpOnly: true,
+      secure: true
+    }
+        
+    res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json({
+      statusCode: 200,
+      success: true,
+      data: {
+        captain: loggedCaptain,
+        refreshToken,
+        accessToken
+      },
+      message: "Captain token refreshed successfully",
+    });
+  } catch(error){
+    res
+    .status(500)
+    .json({
+      statusCode: 500,
+      success: false,
+      message: "Something went wrong while refreshing token",
+      error: error
+    });
+  }
+}
+
 async function updateCaptainProfile(req,res){
   // 
 }
@@ -517,6 +594,7 @@ export {
   verifyEmailAndLogin,
   loginCaptain, 
   getCaptainProfile, 
+  refreshAccessToken,
   updateCaptainProfile,
   forgotPassword,
   resetPassword,

@@ -10,7 +10,7 @@ const CaptainNavbar = () => {
     <nav className=' shadow-md'>
       <div className='container navbar'>
         <div className='logo-img'>
-          <Link to='/'>
+          <Link to='/captain-home'>
             <span>RideApp</span>
             <FontAwesomeIcon 
               icon={faTaxi} 

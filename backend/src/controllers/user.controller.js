@@ -288,6 +288,83 @@ async function getUserProfile(req,res){
   });
 }
 
+async function refreshAccessToken(req, res){
+  const token = req.cookies?.refreshToken || req.header('Authorization')?.replace('Bearer ', '');
+
+  if(!token){
+    res
+    .status(401)
+    .json({
+      statusCode: 401,
+      success: false,
+      message: "Unauthorized Request",
+    });
+    return;
+  }
+
+  try{
+    const decodedToken = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+
+    const user = await  User.findById(decodedToken?._id);
+
+    if(!user || user.refreshToken !== token){
+      res
+      .status(401)
+      .json({
+        statusCode: 401,
+        success: false,
+        message: "Invalid Refresh Token",
+      });
+      return;
+    }
+
+    const loggedUser = await User.findOne(user._id).select('-password -refreshToken')
+
+    if(!loggedUser){
+      res
+      .status(500)
+      .json({
+        statusCode: 500,
+        success: false,
+        message: "Something went wrong while logging User",
+      });
+      return;
+    }
+
+    /* Generating Access and Refresh Token */
+    const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id);
+
+    const options = {
+      httpOnly: true,
+      secure: true
+    }
+        
+    res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json({
+      statusCode: 200,
+      success: true,
+      data: {
+        user: loggedUser,
+        refreshToken,
+        accessToken
+      },
+      message: "User token refreshed successfully",
+    });
+  } catch(error){
+    res
+    .status(500)
+    .json({
+      statusCode: 500,
+      success: false,
+      message: "Something went wrong while refreshing token",
+      error: error
+    });
+  }
+}
+
 async function updateUserProfile(req,res){
   // 
 }
@@ -497,6 +574,7 @@ export {
   verifyEmailAndLogin,
   loginUser, 
   getUserProfile, 
+  refreshAccessToken,
   updateUserProfile,
   forgotPassword,
   resetPassword,
