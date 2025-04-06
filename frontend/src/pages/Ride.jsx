@@ -159,8 +159,8 @@ const Ride = () => {
                           alt="Driver"
                         />
                         <div className='flex-1'>
-                          <p className='font-semibold text-lg'>{ride.captain?.name || 'Driver Name'}</p>
-                          <p className='text-gray-600 text-sm'>{ride.captain?.vehicleNumber || 'Vehicle Number'}</p>
+                          <p className='font-semibold text-lg'>{ride.captain?.fullname || 'Driver Name'}</p>
+                          <p className='text-gray-600 text-sm'>{ride.captain?.vehicle.plate || 'Vehicle Number'}</p>
                           <div className='flex gap-4 mt-2'>
                             <button className='p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors'>
                               <FontAwesomeIcon icon={faPhone} />
@@ -277,11 +277,11 @@ const Ride = () => {
                       <div className='mt-4 space-y-2'>
                         <div className='flex justify-between text-sm'>
                           <span className='text-gray-600'>Trip Duration</span>
-                          <span className='font-medium'>18 minutes</span>
+                          <span className='font-medium'>{ride.duration}</span>
                         </div>
                         <div className='flex justify-between text-sm'>
                           <span className='text-gray-600'>Distance</span>
-                          <span className='font-medium'>3.2 km</span>
+                          <span className='font-medium'>{ride.distance}</span>
                         </div>
                       </div>
                     </div>

@@ -11,33 +11,40 @@ const ProtectedRoute = () => {
   const { profile } = useSelector(state => state.captain);
 
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_BASE_URL}/api/v1/captain/profile`,{
-      withCredentials: true 
-    }).then((response => {
-      if(response.data.success){
-        dispatch(setCaptainProfile(response.data.data.captain));
-        setLoading(false);
-      }
-    }))
-    .catch((err)=>{
-      if(err.response.data.statusCode === 401){
-        axios.get(`${import.meta.env.VITE_BASE_URL}/api/v1/captain/refresh-token`,{
+
+    const fetchCaptainProfile = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/v1/captain/profile`,{
           withCredentials: true 
-        }).then(response => {
-          console.log(response);
+        });
+
+        if (response.data.success) {
           dispatch(setCaptainProfile(response.data.data.captain));
           setLoading(false);
-        })
-        .catch(() => {
-          dispatch(setCaptainProfile(null));
-          setLoading(false);
-        })
-      }
-      else{
+        }
+      } catch (error) {
+        if(error.response.status === 401){
+          try {
+            const refreshResponse = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/v1/captain/refresh-token`,{
+              withCredentials: true 
+            });
+  
+            if (refreshResponse.data.success) {
+              dispatch(setCaptainProfile(refreshResponse.data.data.captain));
+              setLoading(false);
+              return;
+            }
+          } catch (error) {
+            console.error('Token refresh failed:', error);
+          }
+        }
+
         dispatch(setCaptainProfile(null));
         setLoading(false);
       }
-    })
+    }
+
+    fetchCaptainProfile();
   },[]);
 
   if(loading){

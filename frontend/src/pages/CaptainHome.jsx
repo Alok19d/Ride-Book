@@ -21,6 +21,7 @@ const CaptainHome = () => {
     socket.emit("join", {userType: "captain", userId: profile._id});
 
     const handleNewRide = (data) => {
+      console.log(data);
       setRides(prevRides => {
         // Check if ride already exists
         const rideExists = prevRides.some(ride => ride._id === data._id);
@@ -72,7 +73,6 @@ const CaptainHome = () => {
 
   async function confirmRide(){
     try{
-
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/v1/ride/accept-ride`,
         {
@@ -85,7 +85,7 @@ const CaptainHome = () => {
       
       if(response.data.success){
         console.log(response.data);
-        navigate(`/captian-ride?rideId=${response.data.data.ride._id}`, {
+        navigate(`/captain-ride?rideId=${response.data.data.ride._id}`, {
           state: {
             ride: response.data.data.ride
           }
@@ -152,11 +152,11 @@ const CaptainHome = () => {
                               <div className='flex items-center gap-4'>
                                 <div className='flex items-center gap-2 text-gray-600'>
                                   <FontAwesomeIcon icon={faClock} />
-                                  <span className='text-sm'>10 min</span>
+                                  <span className='text-sm'>{item.duration}</span>
                                 </div>
                                 <div className='flex items-center gap-2 text-gray-600'>
                                   <FontAwesomeIcon icon={faLocationDot} />
-                                  <span className='text-sm'>2.5 km</span>
+                                  <span className='text-sm'>{item.distance}</span>
                                 </div>
                               </div>
                               <div className='flex items-center gap-1 text-green-600 font-semibold'>
