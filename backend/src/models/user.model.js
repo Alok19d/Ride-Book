@@ -33,13 +33,15 @@ const userSchema = new mongoose.Schema(
     },
     isVerified:{
       type: Boolean,
-      default: false
+      default: false,
+      // select: false
     },
     socketId: {
       type: String
     },
     refreshToken:{
-      type: String
+      type: String,
+      select: false
     }
   },
   {

@@ -18,6 +18,7 @@ import CaptainValidateEmail from './pages/CaptainValidateEmail'
 import CaptainProtectedRoute from './components/CaptainProtectedRoute'
 import CaptainHome from './pages/CaptainHome'
 import CaptainProfile from './pages/CaptainProfile'
+import CaptainRide from './pages/CaptainRide'
 
 const App = () => {
   return (
@@ -44,6 +45,7 @@ const App = () => {
       <Route element={<CaptainProtectedRoute />}>
         <Route path='/captain-home' element={<CaptainHome />} />
         <Route path='/captain-profile' element={<CaptainProfile />} />
+        <Route path='/captain-ride' element={<CaptainRide />} />
       </Route>
     </Routes>
   )

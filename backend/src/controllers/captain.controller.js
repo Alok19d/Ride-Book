@@ -326,7 +326,7 @@ async function refreshAccessToken(req,res) {
   try{
     const decodedToken = jwt.verify(token, process.env.CAPTAIN_REFRESH_TOKEN_SECRET);
 
-    const captain = await  Captain.findById(decodedToken?._id);
+    const captain = await  Captain.findById(decodedToken?._id).select('+refreshToken');
 
     if(!captain || captain.refreshToken !== token){
       res

@@ -322,7 +322,7 @@ const Home = () => {
                     <div className='hide-on-mobile space-y-3'>
                       <h2 className='text-lg font-semibold'>Choose Vehicle Type</h2>
                       <div 
-                        className={`flex justify-between items-center px-4 py-2 border rounded cursor-pointer ${rideData.vehicleType === 'auto' ? 'outline outline-black' : ''}`}
+                        className={`flex justify-between items-center px-4 py-2 border rounded cursor-pointer ${rideData.vehicleType === 'auto' ? 'border-blue-500 bg-blue-50' : ''}`}
                         onClick={() => handleVehicleSelect('auto')}
                       >
                         <div className='flex gap-5'>
@@ -338,7 +338,7 @@ const Home = () => {
                         <p className='font-semibold'>₹ {journeyDetails ? journeyDetails.fare.auto : '-- --' }</p>
                       </div>
                       <div 
-                        className={`flex justify-between items-center px-4 py-2 border rounded cursor-pointer ${rideData.vehicleType === 'motorcycle' ? 'outline outline-black' : ''}`}
+                        className={`flex justify-between items-center px-4 py-2 border rounded cursor-pointer ${rideData.vehicleType === 'motorcycle' ? 'border-blue-500 bg-blue-50' : ''}`}
                         onClick={() => handleVehicleSelect('motorcycle')}
                       >
                         <div className='flex gap-5'>
@@ -354,7 +354,7 @@ const Home = () => {
                         <p className='font-semibold'>₹ {journeyDetails ? journeyDetails.fare.motorcycle : '-- --'}</p>
                       </div>
                       <div 
-                        className={`flex justify-between items-center px-4 py-2 border rounded cursor-pointer ${rideData.vehicleType === 'car' ? 'outline outline-black' : ''}`}
+                        className={`flex justify-between items-center px-4 py-2 border rounded cursor-pointer ${rideData.vehicleType === 'car' ? 'border-blue-500 bg-blue-50' : ''}`}
                         onClick={() => handleVehicleSelect('car')}
                       >
                         <div className='flex gap-5'>
@@ -384,39 +384,46 @@ const Home = () => {
                 : (
                   /* Step 2: Payment Information */
                   <>
-                    <div className='p-2 mb-5 space-y-1 border rounded'>
-                      <h2 className='mb-1 text-lg font-semibold'>Ride Summary</h2>
-
-                      <p><span className='font-semibold'>Pickup:</span> {rideData.pickup}</p>
-                      <p><span className='font-semibold'>Destination:</span> {rideData.destination}</p>
-                      <p>
-                        <span className='font-semibold pr-1'>
-                          Ride Fare: 
-                        </span>
-                        ₹{journeyDetails?.fare[rideData.vehicleType]}</p>
+                    <div className='p-4 mb-5 space-y-3 border rounded-lg bg-gray-50'>
+                      <h2 className='text-lg font-semibold border-b pb-2'>Ride Summary</h2>
+                      <div className='space-y-2'>
+                        <div className='flex items-center gap-2'>
+                          <div className='w-2 h-2 rounded-full bg-green-500'></div>
+                          <p><span className='font-medium'>Pickup:</span> {rideData.pickup}</p>
+                        </div>
+                        <div className='flex items-center gap-2'>
+                          <div className='w-2 h-2 rounded-full bg-red-500'></div>
+                          <p><span className='font-medium'>Destination:</span> {rideData.destination}</p>
+                        </div>
+                      </div>
+                      <div className='flex justify-between pt-2 border-t'>
+                          <p className='font-semibold'>Total Fare: </p>
+                          <p>₹{journeyDetails?.fare[rideData.vehicleType]}.00</p>
+                      </div>
                     </div>
 
-                    <div className='hide-on-mobile '>
-                      <div className='mb-5'>
+                    <div className='hide-on-mobile'>
+                      <div className='mb-3'>
                         <h2 className='mb-1 text-lg font-semibold'>Select Payment Method</h2>
                         <div 
-                          className={`flex justify-between items-center px-4 py-2 border rounded cursor-pointer ${rideData.paymentMode === 'cash' ? 'outline outline-black' : ''}`}
+                          className={`flex gap-4 items-center p-4 border rounded cursor-pointer ${rideData.paymentMode === 'cash' ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50'}`}
                           onClick={() => setRideData({...rideData, paymentMode: 'cash'})}
                         >
-                          <div className='flex gap-5'>
+                          <div className='w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center'>
                             <img 
                               src='/dollar.png'
-                              className='w-15'
+                              className='w-8 h-8'
+                              alt="Cash payment"
                             />
-                            <div>
-                              <p className='font-semibold'>Cash</p>
-                              <p>Pay directly to driver</p>
-                            </div>
+                          </div>
+                          <div>
+                            <p className='font-semibold text-md'>Cash</p>
+                            <p className='text-gray-600 text-sm'>Pay directly to driver</p>
                           </div>
                         </div>
                       </div>
 
-                      <p className='text-red-600 pl-1 mb-0 text-sm'>
+                      <p className='text-red-600 pl-1 my-0 text-sm'>
                         {error}
                       </p>
 
@@ -425,8 +432,8 @@ const Home = () => {
                         onClick={confirmRideHandler}
                         disabled={loading}
                       >
-                        <FontAwesomeIcon icon={faLock} className='pr-3' />
-                        Pay and Confirm Ride
+                        <FontAwesomeIcon className='pr-2' icon={faLock} />
+                        {loading ? 'Processing...' : 'Pay and Confirm Ride'}
                       </button>
                     </div>
                   </>

@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react'
 import { useNavigate ,useLocation, useSearchParams } from 'react-router-dom' 
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPhone, faMessage, faMagnifyingGlass, faCar, faStar, faStarHalfStroke, faCheck,  faCircle, faLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { faPhone, faMessage, faMagnifyingGlass, faCar, faStar, faStarHalfStroke, faCheck } from '@fortawesome/free-solid-svg-icons';
 import Navbar from '../components/Navbar';
 import Directions from '../components/Directions';
 import socket from '../config/socket';
@@ -35,12 +35,22 @@ const Ride = () => {
     }
 
     socket.on('ride-accepted', (data) => {
+      data.otp = ride.otp;
       console.log(data);
+      setRide(data);
+      setRoute({
+        pickup: `${data.captain.location.ltd} ${data.captain.location.lng}`,
+        destination: data.pickup
+      })
       setStep(2);
     });
 
     socket.on('ride-started', (data) => {
       setStep(3);
+      setRoute({
+        pickup: `${data.captain.location.ltd} ${data.captain.location.lng}`,
+        destination: data.destination
+      });
     });
 
     socket.on('ride-ended', () => {
@@ -62,214 +72,266 @@ const Ride = () => {
           <div className='container ride-container'>
             <div className='ride-info'>
               <div className='ride-form-container'>
-                {
-                  step === 1 && (
-                    <div>
-                      <div className='flex flex-col items-center mb-4 px-3'>
-                        <div className='mb-3 search-icon'>
-                          <FontAwesomeIcon className='text-3xl text-blue-700' icon={faMagnifyingGlass} />
-                        </div>
-                        <h2 className='mb-1 text-xl font-semibold'>Looking for nearby drivers</h2>
-                        <p className='text-center'>We're connecting you with the best availiable driver</p>
-
-                        <div className='h-3 w-full my-5 border rounded'>
-                          <div>
-                            <div className='h-3 w-[80%] bg-blue-600'></div>
-                          </div>
-                        </div>
+                {step === 1 && (
+                  <div className='space-y-4'>
+                    <div className='flex flex-col items-center p-4 bg-blue-50 rounded-lg'>
+                      <div className='mb-3 p-3 bg-white rounded-full shadow-sm'>
+                        <FontAwesomeIcon className='text-3xl text-blue-600' icon={faMagnifyingGlass} />
                       </div>
+                      <h2 className='text-xl font-semibold text-blue-900'>Finding Your Driver</h2>
+                      <p className='text-blue-700 text-sm text-center'>We're connecting you with the best available driver nearby</p>
 
-                      <div className='p-3 border border-gray-400 rounded'>
-                        <div className='flex justify-between'>
-                          <h2 className='text-lg font-semibold'>Ride Details</h2>
-                          <p className='text-gray-600'>Est. 10min</p>
-                        </div>
-                        <p><span className='font-semibold'>Pickup:</span> {ride.pickup}</p>
-                        <p><span className='font-semibold'>DropOff:</span> {ride.destination}</p>
+                      <div className='w-full mt-4 bg-white rounded-full h-2 overflow-hidden'>
+                        <div className='h-full bg-blue-600 animate-pulse' style={{width: '80%'}}></div>
                       </div>
                     </div>
-                  )
-                }
-                {
-                  step === 2 && (
-                    <div>
-                      <div className='mb-5'>
-                        <h2 className='text-lg font-semibold'>Ride Details</h2>
 
-                        <div className='p-2 border border-gray-300 rounded'>
-                          <p><span className='font-semibold'>Pickup:</span> {ride.pickup}</p>
-                          <p><span className='font-semibold'>DropOff:</span> {ride.destination}</p>
-                        </div>  
+                    <div className='p-4 border rounded-lg bg-white shadow-sm'>
+                      <div className='flex justify-between items-center mb-3'>
+                        <h2 className='text-lg font-semibold'>Ride Details</h2>
+                        <div className='flex items-center gap-2 text-blue-600'>
+                          <FontAwesomeIcon icon={faCar} />
+                          <span className='text-sm font-medium'>Est. 10min</span>
+                        </div>
                       </div>
-                      <h2 className='mb-1 text-lg font-semibold'>Ride Confirmation</h2>
-                      <div className='p-2 mb-5 border border-gray-300 rounded '>
-                        <p>
-                          One Time Password: 
-                        </p>
-                        <p className='py-3 text-4xl text-center font-bold'>
-                          {ride.otp}
-                        </p>
-                      </div>
-                      <div className='flex items-center p-2 mb-5 space-x-3 border border-gray-300 rounded'>
-                        <img className='w-15 h-15' src='https://sudoku-master.vercel.app/Avatar_01.png'/>
-                        <div>
-                          <p className='font-semibold'>Alok Anand</p>
-                          <p>BR 12 H 3455</p>
-                          <div className='space-x-3'>
-                            <FontAwesomeIcon icon={faPhone} />
-                            <FontAwesomeIcon icon={faMessage} />
+                      <div className='space-y-3'>
+                        <div className='flex items-start gap-3'>
+                          <div className='w-2 h-2 mt-2 rounded-full bg-green-500'></div>
+                          <div>
+                            <p className='font-medium'>Pickup</p>
+                            <p className='text-gray-600 text-sm'>{ride.pickup}</p>
+                          </div>
+                        </div>
+                        <div className='flex items-start gap-3'>
+                          <div className='w-2 h-2 mt-2 rounded-full bg-red-500'></div>
+                          <div>
+                            <p className='font-medium'>Drop-off</p>
+                            <p className='text-gray-600 text-sm'>{ride.destination}</p>
                           </div>
                         </div>
                       </div>
-                      <button className='btn-1'>Cancel Ride</button>
-                    </div> 
-                  )
-                }
-                {
-                  step === 3 && (
-                    <div>
-                      <div className='flex mb-5'>
-                        <img className='w-12 mr-3' src='https://sudoku-master.vercel.app/Avatar_01.png'/>
-                        
+                    </div>
+
+                    <button 
+                      className='w-full btn-1 bg-red-500 hover:bg-red-600'
+                      onClick={() => navigate('/')}
+                    >
+                      Cancel Ride
+                    </button>
+                  </div>
+                )}
+
+                {step === 2 && (
+                  <div className='space-y-4'>
+                    <div className='p-4 border rounded-lg bg-white shadow-sm'>
+                      <h2 className='text-lg font-semibold mb-3'>Ride Details</h2>
+                      <div className='space-y-3'>
+                        <div className='flex items-start gap-3'>
+                          <div className='w-2 h-2 mt-2 rounded-full bg-green-500'></div>
+                          <div>
+                            <p className='font-medium'>Pickup</p>
+                            <p className='text-gray-600 text-sm'>{ride.pickup}</p>
+                          </div>
+                        </div>
+                        <div className='flex items-start gap-3'>
+                          <div className='w-2 h-2 mt-2 rounded-full bg-red-500'></div>
+                          <div>
+                            <p className='font-medium'>Drop-off</p>
+                            <p className='text-gray-600 text-sm'>{ride.destination}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className='p-4 border rounded-lg bg-white shadow-sm'>
+                      <h2 className='text-lg font-semibold mb-1'>Share OTP with Driver</h2>
+                      <div className='bg-gray-50 p-2 rounded-lg text-center'>
+                        <p className='text-gray-600 text-sm mb-2'>One Time Password</p>
+                        <p className='text-4xl font-bold tracking-widest text-blue-600'>{ride.otp}</p>
+                      </div>
+                    </div>
+
+                    <div className='p-4 border rounded-lg bg-white shadow-sm'>
+                      <div className='flex items-center gap-4'>
+                        <img 
+                          className='w-16 h-16 rounded-full object-cover border-2 border-blue-500' 
+                          src='https://sudoku-master.vercel.app/Avatar_01.png'
+                          alt="Driver"
+                        />
+                        <div className='flex-1'>
+                          <p className='font-semibold text-lg'>{ride.captain?.name || 'Driver Name'}</p>
+                          <p className='text-gray-600 text-sm'>{ride.captain?.vehicleNumber || 'Vehicle Number'}</p>
+                          <div className='flex gap-4 mt-2'>
+                            <button className='p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors'>
+                              <FontAwesomeIcon icon={faPhone} />
+                            </button>
+                            <button className='p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors'>
+                              <FontAwesomeIcon icon={faMessage} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button 
+                      className='w-full btn-1 bg-red-500 hover:bg-red-600'
+                      onClick={() => navigate('/')}
+                    >
+                      Cancel Ride
+                    </button>
+                  </div>
+                )}
+
+                {step === 3 && (
+                  <div className='space-y-4'>
+                    <div className='p-4 border rounded-lg bg-white shadow-sm'>
+                      <div className='flex items-center gap-4 mb-4'>
+                        <img 
+                          className='w-16 h-16 rounded-full object-cover border-2 border-blue-500' 
+                          src='https://sudoku-master.vercel.app/Avatar_01.png'
+                          alt="Driver"
+                        />
                         <div>
-                          <p className='font-semibold'>Michel Chen</p>
-                          <div className='flex items-center'>
-                            <div className='pr-3 text-yellow-500'>
+                          <p className='font-semibold text-lg'>{ride.captain?.name || 'Driver Name'}</p>
+                          <div className='flex items-center gap-2'>
+                            <div className='flex text-yellow-400'>
                               <FontAwesomeIcon icon={faStar} />
                               <FontAwesomeIcon icon={faStar} />
                               <FontAwesomeIcon icon={faStar} />
                               <FontAwesomeIcon icon={faStar} />
                               <FontAwesomeIcon icon={faStarHalfStroke} />
                             </div>
-                            <p>4.8 (2.5k rides)</p>
+                            <span className='text-sm text-gray-600'>4.8 (2.5k rides)</span>
                           </div>
                         </div>
                       </div>
 
-                      <div className='flex items-center justify-between'>
-                        <div className='flex items-center '>
-                          <FontAwesomeIcon className='fa-2xl mr-5' icon={faCar} />
+                      <div className='flex items-center justify-between p-3 bg-gray-50 rounded-lg'>
+                        <div className='flex items-center gap-3'>
+                          <FontAwesomeIcon className='text-2xl text-blue-600' icon={faCar} />
                           <div>
-                            <p className='font-semibold'>Toyata Canry</p>
-                            <p>BR 12H 1234</p>
+                            <p className='font-medium'>{ride.captain?.vehicleModel || 'Vehicle Model'}</p>
+                            <p className='text-sm text-gray-600'>{ride.captain?.vehicleNumber || 'Vehicle Number'}</p>
                           </div>
                         </div>
-                        <div className='py-0.5 px-2 border rounded-2xl'>
-                          Silver
+                        <div className='px-3 py-1 bg-white rounded-full text-sm font-medium'>
+                          {ride.captain?.vehicleColor || 'Silver'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className='flex gap-3'>
+                      <button className='flex-1 btn-1 flex items-center justify-center gap-2'>
+                        <FontAwesomeIcon icon={faPhone} />
+                        Call
+                      </button>
+                      <button className='flex-1 btn-1 flex items-center justify-center gap-2'>
+                        <FontAwesomeIcon icon={faMessage} />
+                        Message
+                      </button>
+                    </div>
+
+                    <div className='p-4 border rounded-lg bg-white shadow-sm'>
+                      <div className='flex justify-between items-center mb-4'>
+                        <div>
+                          <h2 className='text-lg font-semibold'>Trip Progress</h2>
+                          <p className='text-sm text-gray-600'>8 mins to destination</p>
+                        </div>
+                        <div className='text-right'>
+                          <p className='font-semibold'>2.5 km</p>
+                          <p className='text-sm text-gray-600'>remaining</p>
                         </div>
                       </div>
 
-                      <div className='flex justify-between my-5'>
-                        <button className='basis-[48%] btn-1'>
-                        <FontAwesomeIcon className='pr-2' icon={faPhone} />
-                          Call
-                        </button>
-                                  
-                        <button className='basis-[48%] btn-1'>
-                          <FontAwesomeIcon className='pr-2' icon={faMessage}/>
-                          Message
-                        </button>
-                      </div>
-
-                      <div className='p-2 border rounded'>
-                        <div className='flex justify-between mb-3'>
-                          <div>
-                            <h2 className='text-lg font-semibold'>Trip Progress</h2>
-                            <p>8 mins to destination</p>
-                          </div>
-                          <div className='text-right'>
-                            <p className='font-semibold'>2.5 km</p>
-                            <p>remaining</p>
-                          </div>
+                      <div className='relative pl-4'>
+                        <div className='absolute -left-1 top-0 bottom-0 w-1.5 border border-gray-300 rounded'>
+                          {/* <div className='w-full h-[80%] bg-blue-500'>
+                          </div> */}
+                        </div>
+                        
+                        <div className='relative mb-6'>
+                          <div className='absolute -left-6 top-1 w-3 h-3 rounded-full bg-green-500'></div>
+                          <p className='font-medium'>{ride.pickup}</p>
+                          <p className='text-sm text-gray-600'>Picked up at 10:30 AM</p>
                         </div>
 
                         <div className='relative'>
-                          <div className='mb-2'>
-                            <p className='font-semibold'>{ride.pickup}</p>
-                            <p>Picked up at 10:30 AM</p>
-                          </div>
+                          <div className='absolute -left-6 top-1 w-3 h-3 rounded-full bg-red-500'></div>
+                          <p className='font-medium'>{ride.destination}</p>
+                          <p className='text-sm text-gray-600'>ETA 10:50 AM</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
+                {step === 4 && (
+                  <div className='space-y-4'>
+                    <div className='p-6 border rounded-lg bg-white shadow-sm text-center'>
+                      <div className='w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center'>
+                        <FontAwesomeIcon className='text-3xl text-green-500' icon={faCheck} />
+                      </div>
+                      <h2 className='text-xl font-semibold mb-0.5'>Ride Completed!</h2>
+                      <p className='text-gray-600'>Thank you for riding with us</p>
+
+                      <div className='mt-4 space-y-2'>
+                        <div className='flex justify-between text-sm'>
+                          <span className='text-gray-600'>Trip Duration</span>
+                          <span className='font-medium'>18 minutes</span>
+                        </div>
+                        <div className='flex justify-between text-sm'>
+                          <span className='text-gray-600'>Distance</span>
+                          <span className='font-medium'>3.2 km</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className='p-4 border rounded-lg bg-white shadow-sm'>
+                      <h2 className='text-lg font-semibold mb-3'>Trip Details</h2>
+                      <div className='space-y-4'>
+                        <div className='flex items-start gap-4'>
+                          <div className='w-2 h-2 mt-2 rounded-full bg-green-500'></div>
                           <div>
-                            <p className='font-semibold'>{ride.destination}</p>
-                            <p>ETA 10:50 AM</p>
+                            <p className='font-medium'>{ride.pickup}</p>
+                            <p className='text-sm text-gray-600'>Pickup - 10:30 AM</p>
                           </div>
-
-                          <div className='h-full absolute top-1 right-1 overflow-hidden'>
-                            <div className='h-[90%] w-3 border rounded'>
-                              <div className='h-full'>
-                                <div className='w-3 h-[70%] bg-black'></div>
-                              </div>
-                            </div>
+                        </div>
+                        <div className='flex items-start gap-4'>
+                          <div className='w-2 h-2 mt-2 rounded-full bg-red-500'></div>
+                          <div>
+                            <p className='font-medium'>{ride.destination}</p>
+                            <p className='text-sm text-gray-600'>Drop-off - 10:48 AM</p>
                           </div>
                         </div>
                       </div>
                     </div>
-                  )
-                }
-                {
-                  step === 4 && (
-                    <div>
-                      <div className='mb-3 flex flex-col items-center border-b border-gray-300'> 
-                        <div className='py-5 px-5.5 mb-3 bg-green-200 rounded-full'>
-                          <FontAwesomeIcon className='text-3xl text-green-500' icon={faCheck} />
-                        </div>
-                        <h2 className='text-xl font-semibold'>Ride Completed!</h2>
-                        <p className='text-gray-500'>Thank you for riding with us</p>
 
-                        <div className='w-full  p-3 font-semibold'>
-                          <div className='flex justify-between'>
-                            <p className='text-gray-500'>Trip Duration</p>
-                            <p>18 minutes</p>
-                          </div>
-                          <div className='flex justify-between'>
-                            <p className='text-gray-500'>Distance</p>
-                            <p>3.2 km</p>
-                          </div>
+                    <div className='p-4 border rounded-lg bg-white shadow-sm'>
+                      <h2 className='text-lg font-semibold mb-3'>Payment Summary</h2>
+                      <div className='space-y-2'>
+                        <div className='flex justify-between text-sm'>
+                          <span className='text-gray-600'>Base Fare</span>
+                          <span>₹{ride.fare - 3}</span>
+                        </div>
+                        <div className='flex justify-between text-sm'>
+                          <span className='text-gray-600'>Platform Fee</span>
+                          <span>₹3</span>
+                        </div>
+                        <div className='flex justify-between font-medium pt-2 border-t'>
+                          <span>Total</span>
+                          <span>₹{ride.fare}</span>
                         </div>
                       </div>
-
-                      <div className='w-full p-3'>
-                        <h2 className='text-lg font-semibold'>Trip Details</h2>
-
-                        <div className='flex items-center mb-2'>
-                          <FontAwesomeIcon className='text-xl mr-4' icon={faCircle}/>
-                          <div>
-                            <p>{ride.pickup}</p>
-                            <p>Pickup - 10: 30 AM</p>
-                          </div>
-                        </div>
-
-                        <div className='flex items-center'>
-                          <FontAwesomeIcon className='text-2xl mr-4' icon={faLocationDot}/>
-                          <div>
-                            <p>{ride.destination}</p>
-                            <p>Pickup - 10: 48 AM</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className='p-3'>
-                        <h2 className='text-lg font-semibold'>Payment Summary</h2>
-                        <div className='flex justify-between'>
-                          <p>Base Fare</p>
-                          <p>₹ {ride.fare - 3}</p>
-                        </div>
-                        <div className='flex justify-between'>
-                          <p>Platform Fee</p>
-                          <p>₹ 3</p>
-                        </div>
-                        <div className='flex justify-between'>
-                          <p>Total</p>
-                          <p>₹ {ride.fare}</p>
-                        </div>
-                      </div>
-
-                      <button className='btn-1' onClick={()=>{navigate('/')}}>
-                        Return to Home
-                      </button>
                     </div>
-                  )
-                }
+
+                    <button 
+                      className='w-full btn-1'
+                      onClick={() => navigate('/')}
+                    >
+                      Return to Home
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
             <div className='relative google-map border'>

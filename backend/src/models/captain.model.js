@@ -57,7 +57,8 @@ const captainSchema = new mongoose.Schema(
     },
     isVerified:{
       type: Boolean,
-      default: false
+      default: false,
+      // select: false
     },
     location:{
       ltd: {
@@ -76,7 +77,8 @@ const captainSchema = new mongoose.Schema(
       type: String,
     },
     refreshToken:{
-      type: String
+      type: String,
+      select: false
     }
   },
   {

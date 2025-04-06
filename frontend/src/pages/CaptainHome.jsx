@@ -1,12 +1,16 @@
 import axios from 'axios'
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux'
 import {APIProvider, Map} from '@vis.gl/react-google-maps'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faLocationDot, faClock, faIndianRupeeSign, faCar } from '@fortawesome/free-solid-svg-icons'
 import CaptainNavbar from '../components/CaptainNavbar'
 import socket from '../config/socket';
 
 const CaptainHome = () => {
   
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [rides,setRides] = useState([]);
   const [currentRide,setCurrentRide] = useState(null);
@@ -81,16 +85,17 @@ const CaptainHome = () => {
       
       if(response.data.success){
         console.log(response.data);
+        navigate(`/captian-ride?rideId=${response.data.data.ride._id}`, {
+          state: {
+            ride: response.data.data.ride
+          }
+        });
         setStep(3);
       }
     } catch(error){
       console.log(error);
     }
 
-  }
-
-  async function startRide() {
-    
   }
 
   return (
@@ -100,58 +105,142 @@ const CaptainHome = () => {
         <section className='landing'>
           <div className='container landing-container'>
             <div className='ride-info'>
-              <div className='new-ride-container h-full p-2'>
-                {
-                  step === 1 &&
-                  <div>
-                    <h2 className='mb-2 text-lg font-semibold'>Availiable Rides</h2>
-                    {
-                      rides.length === 0 ?
-                      <div>
-                        <p className='text-center text-gray-400'>No ride Found</p>
+              <div className='new-ride-container h-full p-4'>
+                {step === 1 && (
+                  <div className='space-y-4'>
+                    <div className='flex items-center justify-between'>
+                      <h2 className='text-xl font-semibold'>Available Rides</h2>
+                      <div className='flex items-center gap-2 text-blue-600'>
+                        <FontAwesomeIcon icon={faCar} />
+                        <span className='text-sm font-medium'>{rides.length} rides</span>
                       </div>
-                      :
-                      <div>
-                        {
-                          rides.map((item, idx) => (
-                              <div key={item._id} className='p-2 bg-white border rounded'>
-                                <div className='flex justify-between items-center '>
-                                  <div>
-                                    <p><span>Pickup: </span> {item.pickup}</p>
-                                    <p>Dropoff: {item.destination}</p>
-                                  </div>
-                                  <p className='font-semibold'>₹ {item.fare}</p>
-                                </div>
-                                <div className='flex justify-between mt-5'>
-                                  <button className='basis-[48%] py-1 bg-green-600 text-white font-semibold border rounded' onClick={()=>{acceptRide(idx)}}>
-                                    Accept
-                                  </button>
-                                  
-                                  <button className='basis-[48%] py-1 bg-red-600 text-white font-semibold border rounded' onClick={()=>{rejectRide(idx)}}>
-                                    Reject
-                                  </button>
+                    </div>
+
+                    {rides.length === 0 ? (
+                      <div className='flex flex-col items-center justify-center py-8 text-center'>
+                        <div className='w-16 h-16 mb-4 bg-gray-100 rounded-full flex items-center justify-center'>
+                          <FontAwesomeIcon className='text-2xl text-gray-400' icon={faCar} />
+                        </div>
+                        <p className='text-gray-500 font-medium'>No rides available</p>
+                        <p className='text-gray-400 text-sm'>New ride requests will appear here</p>
+                      </div>
+                    ) : (
+                      <div className='space-y-3'>
+                        {rides.map((item, idx) => (
+                          <div 
+                            key={item._id} 
+                            className='p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow'
+                          >
+                            <div className='space-y-3'>
+                              <div className='flex items-start gap-3'>
+                                <div className='w-2 h-2 mt-2 rounded-full bg-green-500'></div>
+                                <div>
+                                  <p className='font-medium'>Pickup</p>
+                                  <p className='text-gray-600 text-sm'>{item.pickup}</p>
                                 </div>
                               </div>
-                          ))
-                        }
+                              <div className='flex items-start gap-3'>
+                                <div className='w-2 h-2 mt-2 rounded-full bg-red-500'></div>
+                                <div>
+                                  <p className='font-medium'>Drop-off</p>
+                                  <p className='text-gray-600 text-sm'>{item.destination}</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className='mt-4 pt-3 border-t flex items-center justify-between'>
+                              <div className='flex items-center gap-4'>
+                                <div className='flex items-center gap-2 text-gray-600'>
+                                  <FontAwesomeIcon icon={faClock} />
+                                  <span className='text-sm'>10 min</span>
+                                </div>
+                                <div className='flex items-center gap-2 text-gray-600'>
+                                  <FontAwesomeIcon icon={faLocationDot} />
+                                  <span className='text-sm'>2.5 km</span>
+                                </div>
+                              </div>
+                              <div className='flex items-center gap-1 text-green-600 font-semibold'>
+                                <FontAwesomeIcon icon={faIndianRupeeSign} />
+                                <span>{item.fare}</span>
+                              </div>
+                            </div>
+
+                            <div className='flex gap-3 mt-4'>
+                              <button 
+                                className='flex-1 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors'
+                                onClick={() => acceptRide(idx)}
+                              >
+                                Accept
+                              </button>
+                              <button 
+                                className='flex-1 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors'
+                                onClick={() => rejectRide(idx)}
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    }
+                    )}
                   </div>
-                }
-                {
-                  step === 2 && 
-                  <div>
-                  <button className='btn-1' onClick={confirmRide}>Confirm Ride</button>
+                )}
+
+                {step === 2 && (
+                  <div className='space-y-4'>
+                    <div className='p-4 border rounded-lg bg-white shadow-sm'>
+                      <h2 className='text-lg font-semibold mb-3'>Ride Details</h2>
+                      <div className='space-y-3'>
+                        <div className='flex items-start gap-3'>
+                          <div className='w-2 h-2 mt-2 rounded-full bg-green-500'></div>
+                          <div>
+                            <p className='font-medium'>Pickup</p>
+                            <p className='text-gray-600 text-sm'>{currentRide.pickup}</p>
+                          </div>
+                        </div>
+                        <div className='flex items-start gap-3'>
+                          <div className='w-2 h-2 mt-2 rounded-full bg-red-500'></div>
+                          <div>
+                            <p className='font-medium'>Drop-off</p>
+                            <p className='text-gray-600 text-sm'>{currentRide.destination}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className='mt-4 pt-3 border-t flex items-center justify-between'>
+                        <div className='flex items-center gap-4'>
+                          <div className='flex items-center gap-2 text-gray-600'>
+                            <FontAwesomeIcon icon={faClock} />
+                            <span className='text-sm'>10 min</span>
+                          </div>
+                          <div className='flex items-center gap-2 text-gray-600'>
+                            <FontAwesomeIcon icon={faLocationDot} />
+                            <span className='text-sm'>2.5 km</span>
+                          </div>
+                        </div>
+                        <div className='flex items-center gap-1 text-green-600 font-semibold'>
+                          <FontAwesomeIcon icon={faIndianRupeeSign} />
+                          <span>{currentRide.fare}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className='flex gap-3'>
+                      <button 
+                        className='flex-1 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors'
+                        onClick={confirmRide}
+                      >
+                        Confirm Ride
+                      </button>
+                      <button 
+                        className='flex-1 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors'
+                        onClick={cancelRide}
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
-                }
-                {
-                  step === 3 &&
-                  <div>
-                    Ride confirmed
-                    Enter OTP
-                    Start Ride
-                  </div>
-                }
+                )}
               </div>
             </div>
             <div className='google-map border'>
